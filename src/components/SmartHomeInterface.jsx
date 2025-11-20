@@ -860,6 +860,17 @@ const SmartHomeInterface = () => {
       const value = snapshot.val();
       if (value !== null && value !== undefined) {
         setSensorData(prev => ({ ...prev, flame: value }));
+        
+        // Automatically turn off kitchen light if flame is detected
+        if (value === 1) {
+          set(ref(database, 'Home_Automation_1/Relay2'), 0)
+            .then(() => {
+              setNotificationQueue(prev => [...prev, '🔥 Flame detected! Kitchen light turned off for safety']);
+            })
+            .catch((error) => {
+              console.error("Error turning off kitchen light: ", error);
+            });
+        }
       }
     });
 
@@ -887,6 +898,12 @@ const SmartHomeInterface = () => {
   const updateLights = (updates) => {
     setLights(prev => ({ ...prev, ...updates }));
     Object.entries(updates).forEach(([roomKey, status]) => {
+      // Prevent turning on kitchen light if flame is detected
+      if (roomKey === 'kitchen' && status === "1" && sensorData.flame === 1) {
+        setNotificationQueue(prev => [...prev, '⚠️ Cannot turn on kitchen light - Flame detected!']);
+        return;
+      }
+      
       // Map room names to relay numbers
       const roomToRelay = {
         bedroom: 'Relay1',
@@ -910,6 +927,12 @@ const SmartHomeInterface = () => {
 
   // Toggle light function for individual rooms
   const toggleLight = (roomKey) => {
+    // Check if trying to turn on kitchen light while flame is detected
+    if (roomKey === 'kitchen' && lights[roomKey] === "0" && sensorData.flame === 1) {
+      setNotificationQueue(prev => [...prev, '⚠️ Cannot turn on kitchen light - Flame detected for safety!']);
+      return;
+    }
+    
     const newStatus = lights[roomKey] === "0" ? "1" : "0";
     updateLights({ [roomKey]: newStatus });
   };
@@ -918,12 +941,17 @@ const SmartHomeInterface = () => {
   const turnAllOn = () => {
     const updates = {
       bedroom: "1",
-      kitchen: "1",
+      kitchen: sensorData.flame === 1 ? "0" : "1", // Don't turn on kitchen if flame detected
       bathroom: "1",
       living_room: "1"
     };
     updateLights(updates);
-    setNotificationQueue(prev => [...prev, 'All lights turned on']);
+    
+    if (sensorData.flame === 1) {
+      setNotificationQueue(prev => [...prev, 'All lights turned on (Kitchen light kept off due to flame detection)']);
+    } else {
+      setNotificationQueue(prev => [...prev, 'All lights turned on']);
+    }
   };
 
   // Function to turn all lights off
