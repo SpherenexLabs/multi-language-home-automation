@@ -748,6 +748,13 @@ const SmartHomeInterface = () => {
     living_room: "0"
   });
 
+  // State for sensor values
+  const [sensorData, setSensorData] = useState({
+    temperature: null,
+    humidity: null,
+    flame: null
+  });
+
   // State for voice recognition
   const [isListening, setIsListening] = useState(false);
   const [speechSupported, setSpeechSupported] = useState(false);
@@ -830,11 +837,40 @@ const SmartHomeInterface = () => {
       }
     });
 
+    // Listen for sensor data
+    const temperatureRef = ref(database, 'Home_Automation_1/Tem');
+    const humidityRef = ref(database, 'Home_Automation_1/Hum');
+    const flameRef = ref(database, 'Home_Automation_1/Flame');
+
+    const temperatureListener = onValue(temperatureRef, (snapshot) => {
+      const value = snapshot.val();
+      if (value !== null && value !== undefined) {
+        setSensorData(prev => ({ ...prev, temperature: value }));
+      }
+    });
+
+    const humidityListener = onValue(humidityRef, (snapshot) => {
+      const value = snapshot.val();
+      if (value !== null && value !== undefined) {
+        setSensorData(prev => ({ ...prev, humidity: value }));
+      }
+    });
+
+    const flameListener = onValue(flameRef, (snapshot) => {
+      const value = snapshot.val();
+      if (value !== null && value !== undefined) {
+        setSensorData(prev => ({ ...prev, flame: value }));
+      }
+    });
+
     return () => {
       bedroomListener();
       kitchenListener();
       bathroomListener();
       livingRoomListener();
+      temperatureListener();
+      humidityListener();
+      flameListener();
     };
   }, []);
 
@@ -1136,6 +1172,39 @@ const SmartHomeInterface = () => {
         <div className='smart'>
           <div className="assistant-icon">G</div>
           <h1 className="title">Smart Home Controls</h1>
+        </div>
+      </div>
+
+      {/* Sensor Data Display */}
+      <div className="sensor-data-section">
+        <div className="sensor-card">
+          <span className="sensor-icon">🌡️</span>
+          <div className="sensor-info">
+            <span className="sensor-label">Temperature</span>
+            <span className="sensor-value">
+              {sensorData.temperature !== null ? `${sensorData.temperature}°C` : '--'}
+            </span>
+          </div>
+        </div>
+        
+        <div className="sensor-card">
+          <span className="sensor-icon">💧</span>
+          <div className="sensor-info">
+            <span className="sensor-label">Humidity</span>
+            <span className="sensor-value">
+              {sensorData.humidity !== null ? `${sensorData.humidity}%` : '--'}
+            </span>
+          </div>
+        </div>
+        
+        <div className="sensor-card">
+          <span className="sensor-icon">🔥</span>
+          <div className="sensor-info">
+            <span className="sensor-label">Flame Sensor</span>
+            <span className={`sensor-value ${sensorData.flame === 1 ? 'flame-detected' : 'flame-safe'}`}>
+              {sensorData.flame !== null ? (sensorData.flame === 1 ? 'DETECTED!' : 'Safe') : '--'}
+            </span>
+          </div>
         </div>
       </div>
 
