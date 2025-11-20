@@ -93,6 +93,128 @@
   font-size: 14px;
 }
 
+/* Sensor Data Section */
+.sensor-data-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 25px;
+  padding: 5px 0;
+}
+
+.sensor-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: white;
+  min-height: 120px;
+  text-align: center;
+}
+
+.sensor-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.sensor-card:nth-child(1) {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.sensor-card:nth-child(2) {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.sensor-card:nth-child(3) {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.sensor-icon {
+  font-size: 40px;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.3));
+  margin-bottom: 5px;
+}
+
+.sensor-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.sensor-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.95;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sensor-value {
+  font-size: 28px;
+  font-weight: bold;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+.flame-detected {
+  animation: pulse-flame 0.8s infinite;
+  color: #fff;
+  font-size: 22px !important;
+}
+
+.flame-safe {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+@keyframes pulse-flame {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+  .sensor-data-section {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .sensor-card {
+    flex-direction: row;
+    justify-content: flex-start;
+    min-height: auto;
+    padding: 15px;
+  }
+  
+  .sensor-icon {
+    font-size: 36px;
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
+  
+  .sensor-info {
+    align-items: flex-start;
+  }
+  
+  .sensor-value {
+    font-size: 24px;
+  }
+}
+
 /* Master controls */
 .master-controls {
   display: flex;
